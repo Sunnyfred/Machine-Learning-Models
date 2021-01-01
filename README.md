@@ -7,4 +7,4 @@ This projects contains fundimental Machine Learning models written by Python.
 Results:
 
 1. Regression model
-
+![Linear regression 1](https://github.com/Sunnyfred/Machine-Learning-Models/blob/main/Results/Linear_regression1.png)
