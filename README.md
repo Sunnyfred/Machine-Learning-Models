@@ -15,3 +15,4 @@ Results:
 2 Logistic regression
 
 ![Logistic regression 1](https://github.com/Sunnyfred/Machine-Learning-Models/blob/main/Results/Logistic_regression%201.png)
+![Logistic regression 2](https://github.com/Sunnyfred/Machine-Learning-Models/blob/main/Results/Logistic_regression%202.png)
