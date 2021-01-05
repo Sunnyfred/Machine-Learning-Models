@@ -21,3 +21,4 @@ Results:
 
 ![SVM 1](https://github.com/Sunnyfred/Machine-Learning-Models/blob/main/Results/SVM1.png)
 ![SVM 2](https://github.com/Sunnyfred/Machine-Learning-Models/blob/main/Results/SVM2.png)
+![SVM 3](https://github.com/Sunnyfred/Machine-Learning-Models/blob/main/Results/SVM3.png)
