@@ -20,3 +20,4 @@ Results:
 3. Support Vector Machine
 
 ![SVM 1](https://github.com/Sunnyfred/Machine-Learning-Models/blob/main/Results/SVM1.png)
+![SVM 2](https://github.com/Sunnyfred/Machine-Learning-Models/blob/main/Results/SVM2.png)
