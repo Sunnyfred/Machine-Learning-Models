@@ -23,3 +23,8 @@ Results:
 ![SVM 2](https://github.com/Sunnyfred/Machine-Learning-Models/blob/main/Results/SVM2.png)
 ![SVM 3](https://github.com/Sunnyfred/Machine-Learning-Models/blob/main/Results/SVM3.png)
 ![SVM 4](https://github.com/Sunnyfred/Machine-Learning-Models/blob/main/Results/SVM4.png)
+
+
+4. Decision Tree
+
+![DT 1](https://github.com/Sunnyfred/Machine-Learning-Models/blob/main/Results/Decision%20Tree1.png)
