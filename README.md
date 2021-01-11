@@ -27,4 +27,8 @@ Results:
 
 4. Decision Tree
 
+4.1 Classification Tree
 ![DT 1](https://github.com/Sunnyfred/Machine-Learning-Models/blob/main/Results/Decision%20Tree1.png)
+4.2 Regresion Tree
+![DT 2](https://github.com/Sunnyfred/Machine-Learning-Models/blob/main/Results/Decision%20Tree2_1.png)
+![DT 3](https://github.com/Sunnyfred/Machine-Learning-Models/blob/main/Results/Decision%20Tree2_2.png)
