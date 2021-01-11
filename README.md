@@ -2,7 +2,7 @@
 
 This is a continuous updating project using git VCS.
 
-This projects contains fundimental Machine Learning models written by Python.   
+This project contains fundamental Machine Learning models written by Python. All models are written start from scratch.   
 
 Results:
 
