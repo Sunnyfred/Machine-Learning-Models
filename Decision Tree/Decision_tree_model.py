@@ -7,12 +7,25 @@ import sys
 import time
 
 
-
 def readin_csv_data(path):
     df = pd.read_csv(path) 
     X = df.iloc[:,:-1].values 
     Y = df.iloc[:,-1].values 
     return X, Y
+
+def train_test_split(X, Y, train_size, shuffle):
+    ''' Perform tran/test datasets splitting '''
+    if shuffle:
+        randomize = np.arange(len(X))
+        np.random.shuffle(randomize)
+        X = X[randomize]
+        Y = Y[randomize]
+    s_id = int(len(Y) * train_size)
+    X_train, X_test = X[:s_id], X[s_id:]
+    Y_train, Y_test = Y[:s_id], Y[s_id:]
+
+    return X_train, X_test, Y_train, Y_test    
+
 
 
 def train_test_split_po(X, Y, train_size, shuffle):
@@ -53,7 +66,8 @@ class DecisionTree():
     Input data structure: numpy array with m x (d+1) shape, 
                           m rows of samples included, 
                           d columns of features/ttributes,
-                          and 1 column of target'''
+                          and 1 column of target
+    Criterion: gini, entropy or mse'''
     
     
     def __init__(self, max_depth, min_samples, criterion):
@@ -61,6 +75,36 @@ class DecisionTree():
         self.ms = min_samples
         self.depth_init = 1
         self.criterion = criterion
+    
+    def evaluate_information_entropy(self, p):
+        '''Evaluate information entropy component'''
+        if p==0:
+            return 0
+        elif p==1:
+            return 0
+        else:
+            return -p*np.log2(p)
+        
+    def evaluate_information_gain(self, left, right, classes):
+        '''Evaluate information gain'''
+        IG_after = 0
+        IG_before = 0
+        size_l = left.shape[0]
+        size_r = right.shape[0]
+        size_t = size_l +  size_r # Total sample No.
+        lr = np.vstack((left, right))
+        statis_lr = collections.Counter(lr[:,-1])
+        IG_before = sum([self.evaluate_information_entropy(float(statis_lr[class_i])/float(size_t)) for class_i in classes])
+        spaces = [left, right]
+        for space in spaces:
+            size = space.shape[0] # Sample No. in different group
+            if size == 0:   # Avoid 0 in denominator
+                continue     
+            tmp = 0.
+            statis = collections.Counter(space[:,-1])
+            tmp=sum([self.evaluate_information_entropy(float(statis[class_i])/float(size)) for class_i in classes])
+            IG_after += tmp * (size / size_t)
+        return IG_before - IG_after         
        
     def evaluate_gini_index(self, left, right, classes):
         '''Gini impurity for classification'''
@@ -75,7 +119,7 @@ class DecisionTree():
                 continue     
             tmp = 0.
             statis = collections.Counter(space[:,-1])
-            tmp=sum([(float(statis[class_i])/float(space.shape[0]))**2.0 for class_i in classes])
+            tmp=sum([(float(statis[class_i])/float(size))**2.0 for class_i in classes])
             gini += (1.0 - tmp) * (size / size_t)
         return gini    
     
@@ -88,10 +132,12 @@ class DecisionTree():
         return mse    
     
     def node(self, X):
-        '''split with the optimal gini/mse index'''
+        '''split with the optimal gini, entropy, or mse index'''
         classes = collections.Counter(X[:,-1])
         classes = list(classes.keys())
-        tmp_value = 1000     # This is a random choice, may need more careful for regession case.
+        tmp_value = 999     # This is a random choice, may need more careful for regession case.
+        tmp_IG = -999
+        tmp_gini = 999
         #for column in range(np.size(X, 1)-1):
         for column in range(X.shape[1]-1):
             for row in X:
@@ -106,8 +152,14 @@ class DecisionTree():
                         right = np.append(right, row2.reshape(-1,np.size(X, 1)), axis=0)
                 if (self.criterion == 'gini'):
                     gini = self.evaluate_gini_index(left, right, classes)
-                    if gini < tmp_value:
-                            node_c, node_value, tmp_value = column, row[column], gini
+                    if gini < tmp_gini:
+                            node_c, node_value, tmp_gini = column, row[column], gini
+                            left_branch, right_branch = left, right
+                elif (self.criterion == 'entropy'):
+                    IG = self.evaluate_information_gain(left, right, classes)
+                    #print(column, row, row2, IG, tmp_IG)
+                    if IG > tmp_IG:
+                            node_c, node_value, tmp_IG = column, row[column], IG
                             left_branch, right_branch = left, right
                 elif (self.criterion == 'mse'):
                     mse = self.evaluate_mse_index(left, right)
@@ -121,6 +173,7 @@ class DecisionTree():
         #print('Node gini index: %f' % tmp_gini )
         #print('Left branch: ', left_branch )
         #print('Right branch: ', right_branch )
+        #print('Node IG index: %f' % tmp_IG )
         return {'feature_id': node_c, 'node_value': node_value, \
             'Left_branch': left_branch, 'Right_branch': right_branch}
 
@@ -152,7 +205,7 @@ class DecisionTree():
                 
     def leaf_node(self, X):  
         '''node is viewed as leaf, the most voted label is the leaf node label'''
-        if (self.criterion == 'gini'):
+        if (self.criterion == 'gini' or 'entropy'):
             statis = collections.Counter(X[:,-1])
             #print('The leaf node labels and counts: ', statis)
             max_votes=max(statis.values())
@@ -208,7 +261,7 @@ class DecisionTree():
             print(('%s%sfeature_%d > %f')% (depth*'| ', '|--', X['feature_id'], X['node_value']))
             self.export_tree(X['Right_branch'], depth+1)
         else:
-            if self.criterion == 'gini':
+            if self.criterion == 'gini' or 'entropy':
                 print(('%s%sclass: %f')%(depth*'| ', '|--', X))
             elif self.criterion == 'mse':
                 print(('%s%savg value: %f')%(depth*'| ', '|--', X))
