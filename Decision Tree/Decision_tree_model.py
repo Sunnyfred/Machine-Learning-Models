@@ -267,15 +267,6 @@ class DecisionTree():
                 print(('%s%savg value: %f')%(depth*'| ', '|--', X))
             
             
-    def print_tree(self, node, depth=0):
-        if isinstance(node, dict):
-            print('%s[X%d < %.3f]' % ((depth*' ', (node['feature_id']+1), node['node_value'])))
-            self.print_tree(node['Left_branch'], depth+1)
-            self.print_tree(node['Right_branch'], depth+1)
-        else:
-            print('%s[%s]' % ((depth*' ', node)))
-            
-            
 def visualize_tree_root_node(g, X):
     g.node(name = 'F_%d <= %.2f'%(X['feature_id'],X['node_value']), \
            shape='box', color='black',style='filled',fillcolor='lemonchiffon')
