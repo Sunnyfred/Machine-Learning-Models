@@ -70,11 +70,17 @@ class DecisionTree():
     Criterion: gini, entropy or mse'''
     
     
-    def __init__(self, max_depth, min_samples, criterion):
+    def __init__(self, max_depth=None, min_samples=None, criterion=None, weight=None):
         self.md = max_depth
         self.ms = min_samples
         self.depth_init = 1
         self.criterion = criterion
+        # Decision stump parameters
+        self.w = weight # sample weights
+        self.p = None      # polarity 
+        self.threshod = None # node
+        self.column_idx = None  # node feature index
+        self.error = None   # Decision stump traning error
     
     def evaluate_information_entropy(self, p):
         '''Evaluate information entropy component'''
@@ -138,11 +144,8 @@ class DecisionTree():
         tmp_value = 999     # This is a random choice, may need more careful for regession case.
         tmp_IG = -999
         tmp_gini = 999
-        #for column in range(np.size(X, 1)-1):
         for column in range(X.shape[1]-1):
             for row in X:
-                #left = np.empty((0, np.size(X, 1)))
-                #right = np.empty((0, np.size(X, 1)))
                 left = np.empty((0, X.shape[1]))
                 right = np.empty((0, X.shape[1]))
                 for row2 in X:
@@ -168,12 +171,6 @@ class DecisionTree():
                             left_branch, right_branch = left, right
                 else:
                     print('I\'m trying to add more criterion in it! ')
-        #print('Node column: %f' % node_c ) 
-        #print('Node value: %f' % node_value )
-        #print('Node gini index: %f' % tmp_gini )
-        #print('Left branch: ', left_branch )
-        #print('Right branch: ', right_branch )
-        #print('Node IG index: %f' % tmp_IG )
         return {'feature_id': node_c, 'node_value': node_value, \
             'Left_branch': left_branch, 'Right_branch': right_branch}
 
@@ -185,7 +182,6 @@ class DecisionTree():
                 del X[key]
             except KeyError:
                 pass
-        #if np.size(left, 0)==0 or np.size(right, 0)==0:
         if left.shape[0]==0 or right.shape[0]==0: # No need to split if encounter empty branch
             X['Left_branch'] = self.leaf_node(np.vstack((left,right)))
             X['Right_branch'] = self.leaf_node(np.vstack((left,right)))
@@ -196,7 +192,6 @@ class DecisionTree():
             return
         dict_tmp={'Left_branch':left, 'Right_branch':right}
         for i in ['Left_branch', 'Right_branch']:   # Left/Right branches grow
-            #if np.size(dict_tmp[i], 0) > min_samples: 
             if dict_tmp[i].shape[0] > min_samples: 
                 X[i] = self.node(dict_tmp[i])
                 self.tree_grows(X[i], self.md, self.ms, depth+1)
@@ -207,10 +202,8 @@ class DecisionTree():
         '''node is viewed as leaf, the most voted label is the leaf node label'''
         if (self.criterion == 'gini' or 'entropy'):
             statis = collections.Counter(X[:,-1])
-            #print('The leaf node labels and counts: ', statis)
             max_votes=max(statis.values())
             lst=[i for i in statis.keys() if statis[i]==max_votes] 
-            #print('The most voted leaf node label is: ', sorted(lst)[0]) 
             return sorted(lst)[0]    
         elif (self.criterion == 'mse'): 
             return np.mean(X[:,-1])  
@@ -218,11 +211,14 @@ class DecisionTree():
     
     def fit(self, X):
         '''Used to obtain root node and build decision tree'''
-        start1 = time.time()
-        Node = self.node(X) # generate node
-        end1 = time.time()
-        print(f"Runtime of the node is {end1 - start1}")
-        self.tree_grows(Node, self.md, self.ms, self.depth_init)
+        if isinstance(self.w, type(None)):
+            #start1 = time.time()
+            Node = self.node(X) # generate node
+            #end1 = time.time()
+            #print(f"Runtime of the node is {end1 - start1}")
+            self.tree_grows(Node, self.md, self.ms, self.depth_init)
+        else:
+            Node = self.decisionstump(X) # one-level decision tree
         return Node
     
     def predict_sample(self, X, Y):
@@ -249,10 +245,7 @@ class DecisionTree():
             tmp1 = tmp1.reshape(-1,1)
             Y_pred = np.append(Y_pred, tmp1, axis=0)
         Y_pred = np.squeeze(Y_pred)
-        return Y_pred
-    
-        
-    
+        return Y_pred    
     
     def export_tree(self, X, depth=0):
         if isinstance(X, dict):
@@ -265,6 +258,44 @@ class DecisionTree():
                 print(('%s%sclass: %f')%(depth*'| ', '|--', X))
             elif self.criterion == 'mse':
                 print(('%s%savg value: %f')%(depth*'| ', '|--', X))
+            
+            
+    def decisionstump(self, X):
+        '''Decision stump use sample weights to determine splitting, 
+           similar to gini and entropy'''
+        self.error = float('inf')
+        for column in range(X.shape[1]-1):
+            thresholds = np.unique(X[:, column])
+            for threshold in thresholds:
+                tmp_p = 1
+                predictions = np.ones(X.shape[0])
+                predictions[X[:, column] < threshold] = -1
+                tmp_error = sum(self.w[predictions != X[:, -1]])
+                if tmp_error > 0.5:
+                    tmp_error = 1 - tmp_error
+                    tmp_p = -1
+                    
+                if tmp_error < self.error:
+                    self.p = tmp_p
+                    self.threshod = threshold
+                    self.column_idx = column
+                    self.error = tmp_error
+                    
+        return {'feature_id': self.column_idx, 'node_value': self.threshod, \
+            'polarity': self.p, 'traning_error': self.error}
+    
+    def decisionstump_prediction(self, X, Y):
+        '''make prediction for given data Y
+           based on tree X'''
+        predictions = np.ones(Y.shape[0])
+        if X['polarity'] == 1:
+            predictions[Y[:,X['feature_id']] < X['node_value']] = -1
+        else:
+            predictions[Y[:,X['feature_id']] > X['node_value']] = -1
+        return predictions
+                    
+            
+        
             
             
 def visualize_tree_root_node(g, X):
