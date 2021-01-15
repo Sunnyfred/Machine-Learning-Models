@@ -32,3 +32,9 @@ Results:
 4.2 Regresion Tree
 ![DT 2](https://github.com/Sunnyfred/Machine-Learning-Models/blob/main/Results/Decision%20Tree2_1.png)
 ![DT 3](https://github.com/Sunnyfred/Machine-Learning-Models/blob/main/Results/Decision%20Tree2_2.png)
+
+
+5. Adaboost
+
+![Adaboost 1](https://github.com/Sunnyfred/Machine-Learning-Models/blob/main/Results/Adaboost_weak_learner.png)
+![Adaboost 2](https://github.com/Sunnyfred/Machine-Learning-Models/blob/main/Results/Adaboost_strong_learner.png)
