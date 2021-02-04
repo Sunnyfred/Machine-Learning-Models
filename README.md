@@ -42,3 +42,8 @@ Results:
 6. DBSCAN
 
 ![DBSCAN 1](https://github.com/Sunnyfred/Machine-Learning-Models/blob/main/Results/DBSCAN.png)
+
+7. Kmeans
+
+![Kmeans 1](https://github.com/Sunnyfred/Machine-Learning-Models/blob/main/Results/Kmeans1.png)
+![Kmeans 2](https://github.com/Sunnyfred/Machine-Learning-Models/blob/main/Results/Kmeans2.png)
