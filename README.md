@@ -38,3 +38,7 @@ Results:
 
 ![Adaboost 1](https://github.com/Sunnyfred/Machine-Learning-Models/blob/main/Results/Adaboost_weak_learner.png)
 ![Adaboost 2](https://github.com/Sunnyfred/Machine-Learning-Models/blob/main/Results/Adaboost_strong_learner.png)
+
+6. DBSCAN
+
+![DBSCAN 1](https://github.com/Sunnyfred/Machine-Learning-Models/blob/main/Results/DBSCAN.png)
